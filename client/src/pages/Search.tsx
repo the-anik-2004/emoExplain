@@ -26,7 +26,7 @@ const Search = () => {
   useEffect(()=>{
     const fetchAllEmoji=async()=>{
       try {
-        const res=await fetch("http://localhost:5000/api/emojis/all");
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/emojis/all`);
         const data=await res.json();
         setAllEmoji(data)
       } catch (error) {

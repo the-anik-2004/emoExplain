@@ -19,7 +19,7 @@ const EmojiList: React.FC = () => {
   useEffect(() => {
     const fetchEmojis = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/emojis?limit=${limit}&offset=${offset}`);
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/emojis?limit=${limit}&offset=${offset}`);
         const data = await res.json();
         setNext(data.length);
         setEmojis(data);

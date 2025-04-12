@@ -24,7 +24,7 @@ const EmojiDetail = () => {
 
   const fetchEmojiByGroup = async (group: string) => {
     try {
-      const res = await fetch('http://localhost:5000/api/emojis?limit=500');
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/emojis?limit=500`);
       const data = await res.json();
       const filteredData = data.filter((e: Emoji) => e.group === group);
       setRelatedEmojis(filteredData);
