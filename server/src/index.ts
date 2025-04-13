@@ -7,7 +7,7 @@ const PORT=process.env.PORT || 5000;
 
 //middlewares
 app.use(cors(
-    {origin:["http://localhost:5173","https://emoexplain.vercel.app/"]}
+    {origin:["http://localhost:5173","https://emoexplain.vercel.app"]}
 ));
 app.use(express.json())
 app.use('/api/emojis',emojiRoutes);
