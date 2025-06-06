@@ -8,6 +8,7 @@ const UnderDevelopment: React.FC<{ feature: string }> = ({ feature }) => {
       <h1 className="text-3xl sm:text-4xl font-bold text-white/80 mb-4">
         🚧 {feature} Page Under Development
       </h1>
+        <div className='h-10 aspect-square bg-conic from-amber-400 via-amber-600 to-amber-800 my-2 rounded-full animate-spin'></div>
       <p className="text-white/60 text-lg sm:text-xl max-w-lg">
         We're working on bringing the <span className="text-yellow-400">{feature}</span> feature to life.
         Stay tuned — it'll arrive in <span className="text-emerald-400">Version 2</span>!
