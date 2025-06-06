@@ -12,10 +12,10 @@ const SearchBar: React.FC<{ onSearch: (query: string) => void; onClear: () => vo
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-[80%] mt-4 flex items-center justify-center">
-      <div className="flex w-full shadow-md">
+    <form onSubmit={handleSubmit} className="w-[85%] px-4 mt-4 flex items-center justify-center">
+      <div className="flex justify-center w-full  shadow-md ">
         {/* Input */}
-        <input
+        <input 
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
