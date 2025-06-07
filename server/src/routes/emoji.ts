@@ -1,10 +1,14 @@
 import express, { Request, Response } from "express";
+import { authenticate } from "../middleware/auth.middleware";
+
 import fetch from "node-fetch";
+import User from "../model/user.model";
 
 const router = express.Router();
 
 let cachedEmojis: any[] = [];
 
+// selected emojis
 router.get('/', async (req: Request, res: Response) => {
   const limit = parseInt(req.query.limit as string) || 50;
   const offset = parseInt(req.query.offset as string) || 0;
@@ -22,6 +26,7 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
+//all emojis
 router.get('/all', async (req: Request, res: Response) => {
 
   try {
@@ -35,5 +40,7 @@ router.get('/all', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to fetch emojis' });
   }
 });
+
+
 
 export default router;

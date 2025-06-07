@@ -2,6 +2,7 @@ import mongoose,{Document,Schema} from "mongoose";
 
 //make Interface of User
 export interface EmoExplainUser extends Document{
+    username:string;
     email:string;
     password?:string;
     isVerified:boolean;
@@ -13,9 +14,10 @@ export interface EmoExplainUser extends Document{
 
 //make userSchema 
 const userScehma= new Schema<EmoExplainUser>({
+    username:{type:String,default:`emoExplainUser`+Date.now().toString()},
     email:{type:String,required:true,unique:true},
     password:{type:String},
-    isVerified:{type:Boolean,Default:false},
+    isVerified:{type:Boolean,default:false},
     otp:{type:String},
     otpExpires:{type:Date},
     favorites:[{type:String}],
