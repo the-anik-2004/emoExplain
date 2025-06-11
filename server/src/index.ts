@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import emojiRoutes from "./routes/emoji";
+import emojiRoutes from "./routes/emoji.route";
 import authRoutes from "./routes/auth.route";
 import favoriteRoutes from "./routes/favorite.route"
 import dotenv from "dotenv";

@@ -9,6 +9,7 @@ export interface EmoExplainUser extends Document{
     otp?:string;
     otpExpires?:Date;
     favorites:string[];
+    searchHistory:string[];
     googleId?:string;
 }
 
@@ -21,6 +22,7 @@ const userScehma= new Schema<EmoExplainUser>({
     otp:{type:String},
     otpExpires:{type:Date},
     favorites:[{type:String}],
+    searchHistory:[{type:String}],
     googleId:{type:String},
 });
 
