@@ -1,7 +1,7 @@
 import { Request,Response } from "express";
 import User from '../model/user.model';
 import fetch from "node-fetch";
-import { promises } from "dns";
+
 
 interface AuthRequest extends Request {
     user?:{userId:string};
@@ -46,35 +46,76 @@ export const getSelectedEmoji=async (req: Request, res: Response):Promise<void> 
 }
 
 
+// add recent searches
+export const addRecentSearches=async (req:AuthRequest,res:Response):Promise<void>=>{
+    const {search} =req.query;
+    const userId=req.user?.userId;
 
-// export const searchEmojiWithHistory=async (req:AuthRequest,res:Response):Promise<void>=>{
-//     const {query}=req.query;
-//     const userId=req.user?.userId;
-//     const user=await User.findById(userId);
+    if(!search || typeof search!=='string'){
+      res.status(400).json({message:"Search query is required"});
+      return;
+    }
 
-//     if(!query || typeof query!='string'){
-//         res.status(400).json({ message: 'Search query is required' });
-//         return;
-//     }
-
-//     try {
+    try{
+      const response =await fetch(`https://www.emoji.family/api/emojis?search=${encodeURIComponent(search)}`);
+      const emojiData= await response.json();
         
-//         //update user's search history
-//         await User.findByIdAndUpdate(userId,{
-//             $addToSet:{searchHistory:query.toLowerCase()}
-//         })
+      if(!Array.isArray(emojiData) || emojiData.length===0){
+        res.status(404).json({ message: "No emojis found for this query" });
+        return;
+      }
+        await User.findByIdAndUpdate(userId,{
+          $addToSet:{
+            searchHistory:search.toLowerCase(),
+          },
+        });
 
-//         //filter emoji results 
-//         if(!user){
-//             res.status(404).json({message:"User not found"});
-//             return;
-//         }else{
-//             const result =user?.searchHistory.filter((emoji)=>emoji.name.toLowerCase().includes(query.toLowerCase()) ||
-//              emoji.description.toLowerCase().includes(query.toLowerCase()))
-//             res.status(200).json({ result });
-//         }
-//     } catch (error) {
-//         console.error('Search error:', error);
-//         res.status(500).json({ message: 'Server error while searching emojis' });
-//     }
-// }
+        res.status(200).json({results:emojiData});
+        return;
+      
+    }catch(error){
+        console.error("Search error:", error);
+        res.status(500).json({ message: "Server error while searching emojis" });
+    }
+}
+
+//get Reacent searches
+export const getRecentSearches=async (
+  req:AuthRequest,
+  res:Response
+):Promise<void>=>{
+  try {
+    const user= await User.findById(req.user?.userId);
+    if(!user){
+      res.status(404).json({message:"User not found"});
+      return;
+    }
+    res.status(200).json({searchHistory:user.searchHistory});
+  } catch (error) {
+      console.error("Error fetching search history:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+//delete recentSearchHistory
+export const clearRecentSearches=async (
+  req:AuthRequest,
+  res:Response
+):Promise<void>=>{
+  try {
+    const user=await User.findById(req.user?.userId);
+
+    if(!user){
+      res.status(404).json({message:"User not found"});
+      return;
+    }else{
+      user.searchHistory=[];
+      await user.save();
+      res.status(200).json({message:"Search history cleared"});
+      return;
+    }
+  } catch (error) {
+    console.error("Error clearing search history:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
