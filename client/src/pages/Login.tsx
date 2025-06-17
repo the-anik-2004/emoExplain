@@ -10,6 +10,7 @@ const Login:React.FC = () => {
   const [email,setEmail]=useState('');
   const [password,setPassword]=useState('');
   const [errorMsg,setErrorMsg]=useState('');
+  const [showPassword,setShowPassword]=useState<boolean>(false)
   const redirect=useNavigate();
 
   //handle Login submit
@@ -77,14 +78,24 @@ const Login:React.FC = () => {
                       className='p-3 rounded-md bg-black/40 text-amber-400 border border-amber-400  focus:text-white'
                       />
 
-                      <input 
-                      type="password"
-                      placeholder='password'
-                      value={password}
-                      onChange={e=>setPassword(e.target.value)}
+                      <div className="relative">
+                    <input
                       required
-                      className='p-3 rounded-md bg-black/40 text-amber-400 border border-amber-400  focus:text-white'
-                      />
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full p-3 pr-10 rounded-md bg-black/40 text-amber-400 border border-amber-400 focus:text-white"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute cursor-pointer right-3 top-3 text-white text-sm"
+                    >
+                      {showPassword ? '🙈' : '👁️'}
+                    </button>
+                  </div>
+
 
                        <button
                           type="submit"

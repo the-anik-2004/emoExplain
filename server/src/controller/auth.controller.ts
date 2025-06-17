@@ -29,11 +29,11 @@ const transpoter=nodemailer.createTransport({
 
 
 export const registerUser= async (req:Request,res:Response):Promise<void>=>{
-    const {email,password}=req.body;
+    const {username,email,password}=req.body;
 
     //check for email and password 
     if(!email || !password){
-       res.status(400).json({message:"Email and Password are required"});
+       res.status(400).json({message:"Username , Email and Password are required"});
        return;
     }
     
@@ -53,16 +53,12 @@ export const registerUser= async (req:Request,res:Response):Promise<void>=>{
 
       const otp = generateOTP();
       const otpExpires=new Date(Date.now()+10*60*1000);
-      console.log(`otp:${otp}`);
-      console.log({
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
-        secure: false,
-        user: process.env.EMAIL_USER,
-      });
+      
+    
 
       const newUser=new User({
         email,
+        username:username||`emoExplainUser${Date.now()}`,
         password:hashedPassword,
         isVerified:false,
         otp,

@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import PrivateRoute from './routes/PrivateRoute.tsx';
 import Login from './pages/Login.tsx';
 import Dashboard from './pages/Dashboard';
+import Register from './pages/Register.tsx';
 
 
 function App() {
@@ -40,7 +41,10 @@ function App() {
           <Navbar />
           <div className='h-[85vh] sm:h-[90vh] w-[90vw] bg-black/50 backdrop-blur-sm rounded-2xl shadow-lg border-1 border-gray-400 overflow-y-scroll scroll-smooth hide-scrollbar'>
             <Routes>
+              {/* Public Routes */}
               <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              {/* Protected Routes */}
               <Route element={<PrivateRoute />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/search" element={<Search />} />
