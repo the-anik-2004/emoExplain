@@ -143,7 +143,7 @@ export const verifyUser=async (req:Request,res:Response):Promise<void>=>{
 export const googleLogin=async (req:Request,res:Response):Promise<void>=>{
   const {tokenId}=req.body;
   if(!tokenId){
-    res.status(500).json({message:"Google token is required"});
+    res.status(400).json({message:"Google token is required"});
     return;
   }
 
@@ -154,7 +154,8 @@ export const googleLogin=async (req:Request,res:Response):Promise<void>=>{
     })
 
     const payload=ticket.getPayload();
-    if(!payload||!payload.email){
+
+    if(!payload||!payload.email||!payload.sub){
       res.status(500).json({message:"invalid google token"});
       return;
     }
@@ -170,6 +171,7 @@ export const googleLogin=async (req:Request,res:Response):Promise<void>=>{
         googleId,
         isVerified:true,
         favorites:[],
+        searchHistory:[],
       });
       await user.save();
 
@@ -178,6 +180,19 @@ export const googleLogin=async (req:Request,res:Response):Promise<void>=>{
       user.isVerified=true;
       await user.save();
     }
+
+    const token=jwt.sign({userId:user._id},process.env.JWT_SECRET!,{
+      expiresIn:"7d",
+    });
+
+    res.cookie('token',token,{
+      httpOnly:true,
+      sameSite:"lax",
+      secure:process.env.NODE_ENV==="production",
+      maxAge:7*24*60*60*1000,
+    })
+      
+
      res.status(200).json({ message: 'Google login successful', user });
   } catch (error) {
     console.error(error);
@@ -227,4 +242,37 @@ export const loginUser = async (req:Request,res:Response):Promise<void>=>{
         res.status(500).json({message:'Server Error'});
     }
 };
+
+// Logout User
+export const logoutUser = (req: Request, res: Response): void => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  res.status(200).json({ message: "Logged out successfully" });
+};
+
+export const getMe=async (req:Request,res:Response):Promise<void>=>{
+  try {
+    const token =req.cookies.token;
+    if(!token){
+      res.status(401).json({message:'Unauthorized'});
+      return;
+    }
+
+    const decoded= jwt.verify(token,process.env.JWT_SECRET as string) as {userId:string};
+
+    const user =await User.findById(decoded.userId).select('-password -otp -otpExpires');
+    if(!user){
+      res.status(404).json({message:'User not Found'});
+      return;
+    }
+    res.status(200).json(user);
+  } catch (error) {
+     res.status(401).json({ message: 'Invalid token' });
+  }
+}
+
 

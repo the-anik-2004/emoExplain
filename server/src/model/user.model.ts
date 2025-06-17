@@ -15,7 +15,7 @@ export interface EmoExplainUser extends Document{
 
 //make userSchema 
 const userScehma= new Schema<EmoExplainUser>({
-    username:{type:String,default:`emoExplainUser`+Date.now().toString()},
+    username:{type:String,default:`emoExplain'ian`+Date.now().toString()},
     email:{type:String,required:true,unique:true},
     password:{type:String},
     isVerified:{type:Boolean,default:false},
