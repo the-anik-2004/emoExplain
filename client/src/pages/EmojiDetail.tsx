@@ -2,7 +2,8 @@ import  { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '../../public/icons';
 import MetaData from '../components/MetaData';
-
+import FavoriteButton from '../components/FavoriteButton';
+import { useAuth } from '../context/AuthContext';
 interface Emoji {
   emoticons: string | string[];
   subgroup: string;
@@ -15,8 +16,11 @@ interface Emoji {
   order: number;
 }
 
+
+
 const EmojiDetail = () => {
   const { state } = useLocation();
+  const {user}=useAuth()
   const emoji: Emoji | null = state?.emoji || null;
 
   const [copied, setCopied] = useState(false);
@@ -81,6 +85,8 @@ const EmojiDetail = () => {
               {emoji.order + ' : ' + emoji.annotation.charAt(0).toUpperCase() + emoji.annotation.substring(1)}
             </h1>
           </div>
+          {/* Buttons */}
+          <div className='flex  justify-evenly w-full gap-2 '>
           <button
             onClick={handleCopy}
             className="text-xl w-full font-semibold my-4 bg-amber-300 text-black hover:bg-black/10 hover:backdrop-blur-sm border hover:text-white px-4 py-2 rounded-md cursor-pointer"
@@ -88,6 +94,16 @@ const EmojiDetail = () => {
             <FontAwesomeIcon icon={['fas', 'copy']} />
             {copied ? ' Emoji Copied' : ' Copy Emoji'}
           </button>
+
+          <FavoriteButton emoji={emoji.emoji} favorites={user?.favorites} />
+
+
+
+
+          </div>
+        
+
+         
 
           <div className="flex flex-row justify-center flex-wrap border-t w-full border-amber-50 border-b py-4 gap-2">
             <MetaData label="Emoji No" value={emoji.order.toString()} />

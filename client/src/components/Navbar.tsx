@@ -12,7 +12,7 @@ const Navbar:React.FC=()=>{
         { id: 'home', icon: 'house', color: 'text-blue-400',path:'/' },     
         { id: 'search', icon: 'search', color: 'text-emerald-400',path:'/search' }, 
         { id: 'favorites', icon: 'heart', color: 'text-rose-400',path:'/favorites' }, 
-        { id: 'user', icon: 'user', color: 'text-yellow-400',path:'/user' },
+        { id: 'user', icon: 'user', color: 'text-yellow-400',path:'/dashboard' },
         { id: 'dev', icon: 'laptop-code',color:'text-orange-400',path:'/dev' },
       ];
 

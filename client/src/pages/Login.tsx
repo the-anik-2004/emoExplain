@@ -78,7 +78,7 @@ const Login:React.FC = () => {
                       className='p-3 rounded-md bg-black/40 text-amber-400 border border-amber-400  focus:text-white'
                       />
 
-                      <div className="relative">
+                  <div className="relative">
                     <input
                       required
                       type={showPassword ? "text" : "password"}
@@ -87,6 +87,7 @@ const Login:React.FC = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full p-3 pr-10 rounded-md bg-black/40 text-amber-400 border border-amber-400 focus:text-white"
                     />
+                   
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
@@ -95,6 +96,10 @@ const Login:React.FC = () => {
                       {showPassword ? '🙈' : '👁️'}
                     </button>
                   </div>
+
+                   <p className="text-sm mt-1 text-right">
+                      <a className="text-amber-400 hover:underline" href="/forgot-password">Forgot Password?</a>
+                    </p>
 
 
                        <button

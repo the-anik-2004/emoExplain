@@ -5,13 +5,18 @@ import Home from './pages/Home.tsx';
 import Search from './pages/Search.tsx';
 import UnderDevelopment from './pages/UnderDevelopment.tsx';
 import EmojiDetail from './pages/EmojiDetail.tsx';
-import DeveloperContact from './pages/DeveloperContact.tsx';
+// import DeveloperContact from './pages/DeveloperContact.tsx';
 import { useEffect, useState } from 'react';
 import PrivateRoute from './routes/PrivateRoute.tsx';
+// import PublicRoute from './components/PublicRoute.tsx';
 import Login from './pages/Login.tsx';
 import Dashboard from './pages/Dashboard';
 import Register from './pages/Register.tsx';
-
+import ForgotPassword from './pages/ForgotPassword.tsx';
+import VerifyResetOtp from './pages/VerifyResetOtp.tsx';
+import ResetPassword from './pages/ResetPassword.tsx';
+import AuthRoute from './routes/AuthRoute.tsx';
+import NotFound from './pages/NotFound.tsx';
 
 function App() {
   const bgIamages: string[] = [
@@ -41,19 +46,25 @@ function App() {
           <Navbar />
           <div className='h-[85vh] sm:h-[90vh] w-[90vw] bg-black/50 backdrop-blur-sm rounded-2xl shadow-lg border-1 border-gray-400 overflow-y-scroll scroll-smooth hide-scrollbar'>
             <Routes>
-              {/* Public Routes */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+               {/* Auth routes for NOT logged-in users */}
+          <Route element={<AuthRoute />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/verify-reset-otp" element={<VerifyResetOtp />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+          </Route>
+
               {/* Protected Routes */}
-              <Route element={<PrivateRoute />}>
-                <Route path="/" element={<Home />} />
-                <Route path="/search" element={<Search />} />
-                <Route path="/favorites" element={<UnderDevelopment feature='Favorite' />} />
-                <Route path="/user" element={<UnderDevelopment feature='Personalized Profile' />} />
-                <Route path="/emoji/:hexcode" element={<EmojiDetail />} />
-                <Route path="/dev" element={<DeveloperContact />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-              </Route>
+                <Route element={<PrivateRoute />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/search" element={<Search />} />
+                  <Route path="/favorites" element={<UnderDevelopment feature='Favorite' />} />
+                  <Route path="/emoji/:hexcode" element={<EmojiDetail />} />
+                </Route>
+
+                 <Route path="*" element={<NotFound/>} />
             </Routes>
           </div>
         </div>

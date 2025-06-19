@@ -28,6 +28,7 @@ const transpoter=nodemailer.createTransport({
 })
 
 
+//register User
 export const registerUser= async (req:Request,res:Response):Promise<void>=>{
     const {username,email,password}=req.body;
 
@@ -250,6 +251,7 @@ export const logoutUser = (req: Request, res: Response): void => {
   res.status(200).json({ message: "Logged out successfully" });
 };
 
+//get current user
 export const getMe=async (req:Request,res:Response):Promise<void>=>{
   try {
     const token =req.cookies.token;
@@ -269,6 +271,99 @@ export const getMe=async (req:Request,res:Response):Promise<void>=>{
   } catch (error) {
      res.status(401).json({ message: 'Invalid token' });
   }
+}
+
+//forgot password
+export const forgotPassword=async(req:Request,res:Response):Promise<void>=>{
+  const {email}=req.body;
+
+  if(!email){
+    res.status(400).json({message:'Email is required'});
+    return;
+  }else{
+    try {
+      const user =await User.findOne({email});
+      if (!user) {
+        res.status(404).json({message:"User Not Found"});
+        return;
+      }
+        const otp =generateOTP();
+        const otpExpires=new Date(Date.now()+10*60*1000);
+
+        user.otp=otp;
+        user.otpExpires=otpExpires;
+        await user.save();
+
+        await transpoter.sendMail({
+          from:process.env.EMAIL_USER,
+          to:email,
+          subject:'Reset Your emoExplain password',
+          text:`Your OTP is : ${otp} . IT expires in 10 minutes.`
+        });
+
+        res.status(200).json({message:`OTP is sent to EMAIL: ${email} `});
+      
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({message:"Server Error"});
+    }
+  }
+}
+
+//verify reset otp
+export const verifyResetOtp=async(req:Request,res:Response):Promise<void>=>{
+  const {email,otp}=req.body;
+
+  
+  if (!email || !otp) {
+    res.status(400).json({ message: "Email and OTP are required" });
+    return;
+  }
+
+   try {
+    const user = await User.findOne({ email });
+
+    if (!user || user.otp !== otp || !user.otpExpires || user.otpExpires < new Date()) {
+      res.status(400).json({ message: "Invalid or expired OTP" });
+      return;
+    }
+
+    res.status(200).json({ message: "OTP is valid" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+//reset password
+export const resetPassword=async(req:Request,res:Response):Promise<void>=>{
+    const {email,newPassword}=req.body;
+
+    if(!email || !newPassword){
+      res.status(400).json({message:'Required Fields are missing'});
+      return;
+    }
+
+    try {
+      const user=await User.findOne({email});
+
+      if(!user  || !user.otpExpires || user.otpExpires<new Date()){
+        res.status(400).json({message:'OTP is Invalid or Expired'});
+        return;
+      }
+
+      const hashedPassword=await bcrypt.hash(newPassword,10);
+      user.password=hashedPassword;
+      user.otp=undefined;
+      user.otpExpires=undefined;
+
+      await user.save();
+      res.status(200).json({ message: 'Password reset successful' });
+      return;
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
 }
 
 
