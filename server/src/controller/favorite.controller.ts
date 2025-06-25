@@ -12,10 +12,8 @@ export const getFavorites=async (req:AuthRequest, res:Response):Promise<void>=>{
         if(!user) {
             res.status(404).json({message:"User Not Found"});
             return;
-        } else{
-            res.status(200).json({favorites:user.favorites});
-            return;
-        }
+        } 
+        res.status(200).json({favorites:user.favorites});
     } catch (error) {
         console.error(error);
         res.status(500).json({message:"server error"});
@@ -24,10 +22,10 @@ export const getFavorites=async (req:AuthRequest, res:Response):Promise<void>=>{
 
 // Toggle favorite (add if not present, remove if already exists)
 export const toggleFavorite =async (req:AuthRequest,res:Response):Promise<void>=>{
-    const{emoji}=req.body;
+    const{hexcode}=req.body;
 
-    if(!emoji){
-        res.status(400).json({message:"Emoji is required"});
+    if(!hexcode || typeof hexcode !=="string"){
+        res.status(400).json({message:"Vaild hexcode is required"});
         return;
     }
 
@@ -38,26 +36,24 @@ export const toggleFavorite =async (req:AuthRequest,res:Response):Promise<void>=
             return;
         }
 
-        const index=user.favorites.indexOf(emoji);
-
         let action:string;
 
-        if(index>-1){
-            user.favorites.splice(index,1);
-            action="removed";
+        if(user.favorites.includes(hexcode)){
+            user.favorites=user.favorites.filter(fav=>fav!==hexcode);
+            action='removed'
         }else{
-            user.favorites.push(emoji);
+            user.favorites.push(hexcode);
             action="added";
         }
 
         await user.save();
 
         res.status(200).json({
-            message:`Emoji is ${action} from favorites`,
-            favorites:user.favorites,
-        })
+            message: `Emoji successfully ${action} from favorites`,
+            favorites: user.favorites
+        });
     } catch (error) {
         console.error(error);
-    res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: 'Server error' });
     }
 }

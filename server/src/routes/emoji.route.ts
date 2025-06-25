@@ -5,19 +5,22 @@ import {
     getSelectedEmoji,
     addRecentSearches,
     getRecentSearches,
-    clearRecentSearches 
+    clearRecentSearches, 
+    getEmojiByHexcode
 } from "../controller/emoji.controller";
 
 const router = express.Router();
 
-// selected emojis
-router.get('/', getSelectedEmoji);
-
 //all emojis
 router.get('/all', getAllEmojis);
+
+// selected emojis
+router.get('/', getSelectedEmoji);
+router.get('/:hexcode', getEmojiByHexcode);
+
 //recent searches
 router.post("/recent-searches", authenticate, addRecentSearches);
-router.get("/recent-searches", authenticate, getRecentSearches);
+router.get("/search/recent-searches", authenticate, getRecentSearches);
 router.delete("/recent-searches", authenticate, clearRecentSearches);
 
 

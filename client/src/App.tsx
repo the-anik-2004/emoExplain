@@ -17,6 +17,8 @@ import VerifyResetOtp from './pages/VerifyResetOtp.tsx';
 import ResetPassword from './pages/ResetPassword.tsx';
 import AuthRoute from './routes/AuthRoute.tsx';
 import NotFound from './pages/NotFound.tsx';
+import DeveloperContact from './pages/DeveloperContact.tsx';
+import Favorites from './pages/Favorites.tsx';
 
 function App() {
   const bgIamages: string[] = [
@@ -54,14 +56,16 @@ function App() {
             <Route path="/verify-reset-otp" element={<VerifyResetOtp />} />
             <Route path="/reset-password" element={<ResetPassword />} />
           </Route>
+            <Route path="/dev" element={<DeveloperContact />} />
 
               {/* Protected Routes */}
                 <Route element={<PrivateRoute />}>
                   <Route path="/" element={<Home />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/search" element={<Search />} />
-                  <Route path="/favorites" element={<UnderDevelopment feature='Favorite' />} />
+                  <Route path="/favorites" element={<Favorites/>} />
                   <Route path="/emoji/:hexcode" element={<EmojiDetail />} />
+                  <Route path="/emoji/:emoji" element={<EmojiDetail />} />
                 </Route>
 
                  <Route path="*" element={<NotFound/>} />

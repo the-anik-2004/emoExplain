@@ -1,42 +1,43 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useAuth } from '../context/AuthContext'; 
 
 interface FavoriteButtonProps {
-  favorites?: string[];
-  emoji: string;
+  favorites: string[] | undefined;
+  hexcode: string;
 }
 
-const FavoriteButton = ({ favorites, emoji }: FavoriteButtonProps) => {
+const FavoriteButton = ({ favorites, hexcode }: FavoriteButtonProps) => {
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const {setUser}=useAuth();
 
   useEffect(() => {
-    if (favorites?.includes(emoji)) {
-      setIsFavorite(true);
+    if (favorites && hexcode) {
+        setIsFavorite(favorites.includes(hexcode));
+        setUser((prev)=>prev?{...prev,favorites:favorites}:prev);
+    }else{
+      setIsFavorite(false);
     }
-  }, [favorites, emoji]);
+  }, [favorites, hexcode]);
+
 
   const handleToggleFavorite = async () => {
-    if (!favorites) {
-      alert('Please Log in to save Treasures!');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const res = await api.post('/favorites/toggle', { emoji });
-      if (res.data?.favorites) {
-        setIsFavorite(res.data.favorites.includes(emoji));
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Something went wrong!');
-    } finally {
-      setLoading(false);
-    }
-  };
+        setLoading(true);
+        try {
+            const res = await api.post('/favorites/toggle', { hexcode });
+            if (res.data?.favorites) {
+              setIsFavorite(res.data.favorites.includes(hexcode));
+              setUser(prev => prev ? { ...prev, favorites: res.data.favorites } : prev);
+            }
+        } catch (err) {
+          console.error(err);
+          alert("Failed to update favorites");
+        } finally {
+          setLoading(false);
+        }
+  }
   
   return (
     <button

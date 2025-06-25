@@ -9,12 +9,12 @@ interface AuthRequest extends Request {
 
 let cachedEmojis: any[] = [];
 
-export const getAllEmojis=async (req:Request,res:Response):Promise<void>=>{
+//get all emojis
+export const getAllEmojis=async (req:AuthRequest,res:Response):Promise<void>=>{
   try {
     if (cachedEmojis.length === 0) {
       const response = await fetch("https://www.emoji.family/api/emojis");
       cachedEmojis = await response.json();
-      return;
     }
     res.json(cachedEmojis);
     return; 
@@ -25,7 +25,7 @@ export const getAllEmojis=async (req:Request,res:Response):Promise<void>=>{
 }  
 
 //get Selected Emojis
-export const getSelectedEmoji=async (req: Request, res: Response):Promise<void> => {
+export const getSelectedEmoji=async (req: AuthRequest, res: Response):Promise<void> => {
   const limit = parseInt(req.query.limit as string) || 50;
   const offset = parseInt(req.query.offset as string) || 0;
 
@@ -44,6 +44,36 @@ export const getSelectedEmoji=async (req: Request, res: Response):Promise<void> 
     return;
     }
 }
+
+//get Single Emoji
+ export const getEmojiByHexcode = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { hexcode } = req.params;
+
+  if (!hexcode) {
+    res.status(400).json({ message: "Hexcode is required" });
+    return;
+  }
+
+  try {
+    if (cachedEmojis.length === 0) {
+      const response = await fetch("https://www.emoji.family/api/emojis");
+      cachedEmojis = await response.json();
+    }
+
+    const emoji = cachedEmojis.find(e => e.hexcode.toLowerCase() === hexcode.toLowerCase());
+
+    if (!emoji) {
+      res.status(404).json({ message: "Emoji not found" });
+      return;
+    }
+
+    res.status(200).json(emoji);
+  } catch (error) {
+    console.error("Error fetching emoji by hexcode:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 
 
 // add recent searches

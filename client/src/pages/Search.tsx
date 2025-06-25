@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '../../public/icons'
 import SearchBar from '../components/SearchBar';
 import SkeletonLoader from '../components/SkeletonLoader';
+import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 interface Emoji {
   emoticons: string | string[];
@@ -21,62 +23,84 @@ const Search = () => {
   const [recentEmojiSearches, setRecentEmojiSearches] = useState<string[]>([]);
   const [filteredEmojis, setFilteredEmojis] = useState<Emoji[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [queryValue,setQueryValue]=useState<string>('')
+  const [queryValue,setQueryValue]=useState<string>('');
+  const {user}=useAuth();
   
   useEffect(()=>{
-    const fetchAllEmoji=async()=>{
+    const fetchAllEmoji = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/emojis/all`);
-        const data=await res.json();
-        setAllEmoji(data)
+        const res = await api.get('/emojis/all');   
+        setAllEmoji(res.data);
       } catch (error) {
-        console.log("error while fetching all emojis");
-      }finally{
+        console.log("error while fetching all emojis", error);
+      } finally {
         setLoading(false);
       }
-    }
-    fetchAllEmoji();
-  },[]);
+    };
 
-  useEffect(()=>{
-    const storedSearches=localStorage.getItem('recentEmojiSearches');
-    if(storedSearches  ){
-      setRecentEmojiSearches(JSON.parse(storedSearches));
+    //Fetch searchHistory
+    const fetchSearchHistory=async()=>{
+      try {
+        const res =await api.get('/emojis/search/recent-searches');
+        if(res.data?.searchHistory){
+          setRecentEmojiSearches(res.data.searchHistory);
+        }
+      } catch (error) {
+        console.error("Error fetching search history", error);
+      }
     }
-  },[])
+
+    fetchAllEmoji();
+    if(user) fetchSearchHistory();
+  },[user]);
+
+
 
 
   
-  const handleSearch=(query:string):void=>{
-    const trimmedQuery = query.trim();
+  const handleSearch=async(query:string):Promise<void>=>{
+    const trimmedQuery = query.toLowerCase().trim();
     if (!trimmedQuery) return;
 
+    setQueryValue(trimmedQuery);
+    setLoading(true);
+
+    try {
       const result=allEmoji.filter((emoji)=>
+        emoji.subgroup.toLocaleLowerCase().includes(query.toLocaleLowerCase()) ||
         emoji.annotation.toLocaleLowerCase().includes(query.toLocaleLowerCase()) ||
         emoji.group.toLocaleLowerCase().includes(query.toLocaleLowerCase()) ||
-        emoji.subgroup.toLocaleLowerCase().includes(query.toLocaleLowerCase()) ||
         emoji.tags.some(tag=>tag.toLocaleLowerCase().includes(query.toLocaleLowerCase())) ||
         emoji.emoji.includes(query) ||
         emoji.hexcode.includes(query)||
         emoji.order.toString().includes(query)
-      )
-      setQueryValue(query);
+      );
       setFilteredEmojis(result);
-      setLoading(false);
 
-      setRecentEmojiSearches((prev)=>{
-        const updated=[query,...prev.filter(item=>item!==query)].slice(0,10)
-        localStorage.setItem('recentEmojiSearches',JSON.stringify(updated));
-        return updated;
-      })
-     
+      if(user){
+        //save to server searches
+        await api.post(`/emojis/recent-searches?search=${encodeURIComponent(trimmedQuery)}`);
+        //Refresh Search History
+        const res= await api.get('/emojis/search/recent-searches');
+        if(res.data?.searchHistory){
+           setRecentEmojiSearches(res.data.searchHistory);
+        }
+      }
+    } catch (error) {
+      console.error("Search error", error);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  const handleClear=()=>{
-    setQueryValue('');
-    setFilteredEmojis([]);
-   
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  //Clear SearchHistory
+   const handleClearHistory = async () => {
+    try {
+      await api.delete('/emojis/recent-searches');
+      setRecentEmojiSearches([]);
+    } catch (err) {
+      console.error("Error clearing search history", err);
+    }
   }
 
   const groupEmojiByGroup=(emojis:Emoji[])=>{
@@ -99,8 +123,9 @@ const Search = () => {
     <div className='pt-4 flex flex-col items-center  '>
     <div className="pt-4 flex flex-col items-center w-full  " > 
     <h1 className="font-extrabold  text-3xl sm:text-5xl mb-4 ">😉emoExplain</h1>
-    <SearchBar onSearch={handleSearch} onClear={handleClear}/>
+    <SearchBar onSearch={handleSearch} onClear={()=>{setQueryValue('');setFilteredEmojis([]);}}/>
     </div>
+    
     <section className="flex flex-col-reverse sm:flex-row sm:justify-evenly p-4 gap-4 w-full overflow-hidden h-[75vh]">
         {/* left-top */}
         <div className="flex flex-col flex-2 border-2 border-gray-400 rounded-2xl p-4 sm:p-8 h-full overflow-y-auto hide-scrollbar ">
@@ -164,6 +189,16 @@ const Search = () => {
           <h1 className="flex flex-start font-extrabold  text-2xl sm:text-4xl mb-4 text-amber-400 border-b border-amber-300 pb-2 sm:pb-4  items-center gap-2 rounded-md bg-gradient-to-t from-zinc-900/80 to-transparent p-4 ">
             <FontAwesomeIcon icon={['fas','history']} className='text-lg sm:text-2xl'/> Recent Searches
           </h1>
+          {
+            recentEmojiSearches.length>0 && (
+              <button
+                onClick={handleClearHistory}
+                className="text-sm sm:text-base text-red-400 hover:underline focus:outline-none focus:ring-1 focus:ring-red-400 rounded cursor-pointer hover:backdrop-blur p-2 mb-4"
+              >
+                <FontAwesomeIcon icon={['fas','trash-arrow-up']}/> Clear All
+              </button>
+            )
+          }
           <div className='flex flex-wrap gap-4'>
             {
             recentEmojiSearches.length===0 ?
@@ -175,6 +210,7 @@ const Search = () => {
                   key={index}
                   className=' cursor-pointer hover:underline text-amber-200 bg-gray-300/30 px-4 py-2 rounded-full hover:bg-zinc-900/50 border'
                   onClick={()=>handleSearch(searchItem)}
+                  title={`Search for "${searchItem}"`}
                   >{searchItem}</span>
               ))
             )
