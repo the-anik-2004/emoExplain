@@ -23,21 +23,28 @@ const FavoriteButton = ({ favorites, hexcode }: FavoriteButtonProps) => {
   }, [favorites, hexcode]);
 
 
-  const handleToggleFavorite = async () => {
-        setLoading(true);
-        try {
-            const res = await api.post('/favorites/toggle', { hexcode });
-            if (res.data?.favorites) {
-              setIsFavorite(res.data.favorites.includes(hexcode));
-              setUser(prev => prev ? { ...prev, favorites: res.data.favorites } : prev);
-            }
-        } catch (err) {
-          console.error(err);
-          alert("Failed to update favorites");
-        } finally {
-          setLoading(false);
-        }
+ const handleToggleFavorite = async () => {
+  setLoading(true);
+  try {
+    const res = await api.post('/favorites/toggle', { hexcode });
+    if (res.data?.favorites) {
+      setIsFavorite(res.data.favorites.includes(hexcode));
+      setUser(prev => prev ? { ...prev, favorites: res.data.favorites } : prev);
+    }
+  } catch (err: any) {
+    console.error(err);
+    if (err.response) {
+      alert(`Failed: ${err.response.data?.message || 'Server error'}`);
+    } else if (err.request) {
+      alert("No response from server. Please check your network.");
+    } else {
+      alert("An unexpected error occurred.");
+    }
+  } finally {
+    setLoading(false);
   }
+}
+
   
   return (
     <button
