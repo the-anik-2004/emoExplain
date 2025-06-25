@@ -21,8 +21,8 @@ app.use(cors({
     credentials:true,
 }));
 
-app.use(express.json());
 app.use(cookieParser());
+app.use(express.json());
 //routes
 app.get("/", (req, res) => {
     res.status(200).json({ message: "Welcome to emoExplain server" })

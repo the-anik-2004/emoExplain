@@ -183,10 +183,10 @@ export const googleLogin=async (req:Request,res:Response):Promise<void>=>{
     });
 
     res.cookie('token',token,{
-      httpOnly:true,
-      sameSite:"lax",
-      secure:process.env.NODE_ENV==="production",
-      maxAge:7*24*60*60*1000,
+        httpOnly: true,
+        secure: true,          // REQUIRED for HTTPS in production
+        sameSite: 'none',      // REQUIRED for cross-origin cookie
+        maxAge: 7 * 24 * 60 * 60 * 1000
     })
       
 
@@ -227,10 +227,10 @@ export const loginUser = async (req:Request,res:Response):Promise<void>=>{
       );
 
       res.cookie('token',token,{
-        httpOnly:true,
-        sameSite:'lax',
-        secure:process.env.NODE_ENV==="production",
-        maxAge:7*24*60*60*1000,
+        httpOnly: true,
+        secure: true,          // REQUIRED for HTTPS in production
+        sameSite: 'none',      // REQUIRED for cross-origin cookie
+        maxAge: 7 * 24 * 60 * 60 * 1000
       })
         .status(200)
         .json({user});
