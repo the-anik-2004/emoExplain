@@ -1,5 +1,5 @@
 import  { useState, useEffect } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link,  useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '../../public/icons';
 import MetaData from '../components/MetaData';
 import FavoriteButton from '../components/FavoriteButton';
@@ -79,7 +79,7 @@ const EmojiDetail = () => {
       console.error('Failed to copy text:', error);
     }
   };
-
+  console.log(loadingRelated);
   if (!emoji) return <p className="text-white text-center">Emoji not found</p>;
 
   //generate Emoji description
