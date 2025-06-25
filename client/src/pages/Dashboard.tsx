@@ -134,9 +134,14 @@ const Dashboard = () => {
                       </section>
 
                       <section className="text-lg text-teal-600">
-                              <FontAwesomeIcon icon={['fas', `laptop`] }  /> : {
-                                user?.googleId ? `Login via Google Account` : `Login via Email `}
-                      </section>
+                            <FontAwesomeIcon icon={['fas', 'laptop']} /> : 
+                            {
+                              user && 'googleId' in user 
+                                ? `Login via Google Account`
+                                : `Login via Email`
+                            }
+                          </section>
+
 
                 </div>
 
