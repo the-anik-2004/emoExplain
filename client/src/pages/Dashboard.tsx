@@ -119,7 +119,7 @@ const Dashboard = () => {
               <div className="mb-6 text-center">
                 <p className="text-sm text-gray-400 font-semibold">Welcome,</p>
                 <p className="text-lg font-bold break-words">
-                  {user?.username || user?.email}
+                  {user?.username.slice(0,10)==='emoExplain'?user.email.split('@')[0] : user?.username}
                 </p>
               </div>
 
