@@ -184,8 +184,8 @@ export const googleLogin=async (req:Request,res:Response):Promise<void>=>{
 
     res.cookie('token',token,{
         httpOnly: true,
-        secure: true,          // REQUIRED for HTTPS in production
-        sameSite: 'none',      // REQUIRED for cross-origin cookie
+        secure: process.env.NODE_ENV === "production",   // secure true in prod, false locally
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",  // REQUIRED for cross-origin cookie
         maxAge: 7 * 24 * 60 * 60 * 1000
     })
       
@@ -225,11 +225,12 @@ export const loginUser = async (req:Request,res:Response):Promise<void>=>{
         process.env.JWT_SECRET as string,
         {expiresIn:'7d'}
       );
+      console.log(token);
 
       res.cookie('token',token,{
         httpOnly: true,
-        secure: true,          // REQUIRED for HTTPS in production
-        sameSite: 'none',      // REQUIRED for cross-origin cookie
+        secure: process.env.NODE_ENV === "production",   // secure true in prod, false locally
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",      // REQUIRED for cross-origin cookie
         maxAge: 7 * 24 * 60 * 60 * 1000
       })
         .status(200)
@@ -244,8 +245,8 @@ export const loginUser = async (req:Request,res:Response):Promise<void>=>{
 export const logoutUser = (req: Request, res: Response): void => {
   res.clearCookie("token", {
     httpOnly: true,
-    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
   });
 
   res.status(200).json({ message: "Logged out successfully" });
@@ -255,6 +256,7 @@ export const logoutUser = (req: Request, res: Response): void => {
 export const getMe=async (req:Request,res:Response):Promise<void>=>{
   try {
     const token =req.cookies.token;
+
     if(!token){
       res.status(401).json({message:'Unauthorized'});
       return;
